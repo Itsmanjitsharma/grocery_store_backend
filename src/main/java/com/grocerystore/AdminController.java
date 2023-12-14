@@ -14,7 +14,7 @@ import com.grocerystore.store.AuthenticationService;
 import com.grocerystore.store.UserInfo;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://62.72.57.113:5173")
 public class AdminController {
 
     AuthenticationService authenticationService;
