@@ -14,7 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/customers")
-@CrossOrigin(origins = "http://62.72.57.113:5173")
+//@CrossOrigin(origins = "http://62.72.57.113:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://62.72.57.113:5173",})
 public class CustomerController {
 
     @Autowired

@@ -49,4 +49,7 @@ public class StoreInventry {
 
     @Column(name = "Purchage_Date")
     private Date purchaseDate;
+
+    @Column(name = "unit_type")
+    private String unitType;
 }

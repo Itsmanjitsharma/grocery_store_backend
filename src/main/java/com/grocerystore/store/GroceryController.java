@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "http://62.72.57.113:5173")
+//@CrossOrigin(origins = "http://62.72.57.113:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://62.72.57.113:5173",})
 public class GroceryController {
     @Autowired
     GroceryService groceryService;
@@ -31,8 +34,10 @@ public class GroceryController {
         StoreInventry inventoryItem = new StoreInventry(id, action.getProduct().trim(), action.getQuantity(),
                 action.getPurchaseCost(),
                 action.getSellCost(), action.getWholesaleCost(),
-                action.getQuantity().multiply(action.getPurchaseCost()),
-                action.getPartyName(), new Date());
+                //action.getQuantity().multiply(action.getPurchaseCost()),
+                action.getStockValue(),
+                action.getPartyName(), new Date(),
+                action.getUnitType().toUpperCase());
         inventoryItemList.add(i, inventoryItem);
         try {
             groceryService.saveStock(inventoryItemList);
@@ -99,7 +104,8 @@ public class GroceryController {
         for (StoreInventoryDAO storeInventoryDAO : inventryInfoList) {
             inventoryDTOs.add(new StoreInventoryDTO(i++, storeInventoryDAO.getItemName(),
                     storeInventoryDAO.getQuantity(), storeInventoryDAO.getPurchaseCost(),
-                    storeInventoryDAO.getSellCost(), storeInventoryDAO.getWholesaleCost()));
+                    storeInventoryDAO.getSellCost(), storeInventoryDAO.getWholesaleCost(),
+                    storeInventoryDAO.getUnitType()));
         }
         return inventoryDTOs;
     }
@@ -126,6 +132,7 @@ public class GroceryController {
 
     @PutMapping("/updateRow")
     public void updateRow(@RequestBody UpdatedRowData updatedRowData) {
+        System.out.println("updateRow in controller"+updatedRowData);
         groceryService.updateRowInStoreInventory(updatedRowData);
     }
 

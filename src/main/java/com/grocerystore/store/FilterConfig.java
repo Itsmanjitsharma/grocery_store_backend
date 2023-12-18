@@ -24,6 +24,7 @@ public class FilterConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://62.72.57.113:5173"); // Replace with the actual origin of your React app
+        config.addAllowedOrigin("http://localhost:5173"); // Replace with the actual origin of your React app
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

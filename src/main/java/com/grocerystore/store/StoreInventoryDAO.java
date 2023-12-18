@@ -37,16 +37,20 @@ public class StoreInventoryDAO {
     private BigDecimal sellCost;
 
     public StoreInventoryDAO(String itemName, BigDecimal quantity, BigDecimal purchaseCost, BigDecimal sellCost,
-            BigDecimal wholesaleCost) {
+            BigDecimal wholesaleCost, String unitType) {
         this.itemName = itemName;
         this.quantity = quantity;
         this.purchaseCost = purchaseCost;
         this.sellCost = sellCost;
         this.wholesaleCost = wholesaleCost;
+        this.unitType = unitType;
     }
 
     @Column(nullable = false,name = "wholesale_cost")
     private BigDecimal wholesaleCost;
+
+    @Column(nullable = false , name = "unit_type")
+    private String unitType;
 
     
 }

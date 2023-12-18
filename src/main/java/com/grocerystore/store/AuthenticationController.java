@@ -7,8 +7,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "http://62.72.57.113:5173")
-public class AuthenticationController {
+//@CrossOrigin(origins = "http://62.72.57.113:5173")
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://62.72.57.113:5173",})
+    
+    public class AuthenticationController {
 
     @Autowired
     private AuthenticationService authenticationService;

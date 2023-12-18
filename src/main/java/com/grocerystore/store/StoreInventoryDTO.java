@@ -19,4 +19,5 @@ public class StoreInventoryDTO {
     private BigDecimal purchaseCost;
     private BigDecimal sellCost;
     private BigDecimal wholesaleCost;
+    private String unitType;
 }

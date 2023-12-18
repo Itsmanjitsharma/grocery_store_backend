@@ -20,4 +20,6 @@ public class InventryDTO {
     BigDecimal stockValue;
     BigDecimal wholesaleCost;
     
+    String unitType;
+    
 }

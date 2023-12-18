@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,7 +46,7 @@ public class GroceryService {
             if (!uiMap.containsKey(storeInventry.getItem())) {
                 uiMap.put(storeInventry.getItem(), new StoreInventoryDAO(storeInventry.getItem(),
                         storeInventry.getQuantity(), storeInventry.getPurchaseCost(), storeInventry.getSellCost(),
-                        storeInventry.getWholesaleCost()));
+                        storeInventry.getWholesaleCost(), storeInventry.getUnitType()));
             }
         }
         Map<String, StoreInventoryDAO> dbMap = groceryStoreRepository.findByItemNameIn(new ArrayList<>(uiMap.keySet()))
@@ -60,6 +62,7 @@ public class GroceryService {
                 storeInventoryDAODB.setPurchaseCost(storeInventoryDAOUI.getPurchaseCost());
                 storeInventoryDAODB.setSellCost(storeInventoryDAOUI.getSellCost());
                 storeInventoryDAODB.setWholesaleCost(storeInventoryDAOUI.getWholesaleCost());
+                storeInventoryDAODB.setUnitType(storeInventoryDAOUI.getUnitType());
                 inventoryDAOsToSave.add(storeInventoryDAODB);
             } else {
                 inventoryDAOsToSave.add(storeInventoryDAOUI);
@@ -80,7 +83,7 @@ public class GroceryService {
                     storeInventry.getWholesaleCost(),
                     storeInventry.getStockValue(),
                     storeInventry.getPartyName(),
-                    LocalDate.now()));
+                    LocalDate.now(), storeInventry.getUnitType()));
         }
         inventoryTransactionRepo.saveAll(inventryTransactionDAOList);
     }
@@ -150,18 +153,13 @@ public class GroceryService {
     }
 
     public List<BillingTransactionDTO> getBillinInfo(String startDate, String endDate) {
-        System.out.println("service");
-        System.out.println(startDate);
-        System.out.println(endDate);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         // Parse the string into a LocalDate
         LocalDate localDateStart = LocalDate.parse(startDate, formatter);
         LocalDate localDateEnd = LocalDate.parse(endDate, formatter);
 
         List<BillingTransactionDAO> billingTransactionDAOList = billingTransactionRepo
                 .findAllByBillingDateBetween(localDateStart, localDateEnd);
-        System.out.println(billingTransactionDAOList);
         List<BillingTransactionDTO> billingTransactionDTOs = new ArrayList<>();
         for (BillingTransactionDAO billingTransactionDAO : billingTransactionDAOList) {
             billingTransactionDTOs.add(new BillingTransactionDTO(billingTransactionDAO.getId(),
@@ -186,35 +184,54 @@ public class GroceryService {
 
     public void updateRowInStoreInventory(UpdatedRowData updatedRowData) {
         try {
-            // Validation and error handling can be added here
-
-            // Create a StoreInventoryDAO object with the updated data
-            StoreInventoryDAO storeInventoryDAO = new StoreInventoryDAO(
-                    updatedRowData.getProduct(),
-                    updatedRowData.getQuantity(),
-                    updatedRowData.getPurchaseCost(),
-                    updatedRowData.getSellCost(),
-                    updatedRowData.getWholesaleCost());
-            // Find the existing record to update (usually based on the ID)
             Optional<StoreInventoryDAO> existingRecord = groceryStoreRepository
                     .findByItemName(updatedRowData.getProduct());
             if (existingRecord.isPresent()) {
-                // Update the existing record with the new data
                 StoreInventoryDAO updatedRecord = existingRecord.get();
-                updatedRecord.setItemName(storeInventoryDAO.getItemName());
-                updatedRecord.setQuantity(storeInventoryDAO.getQuantity());
-                updatedRecord.setPurchaseCost(storeInventoryDAO.getPurchaseCost());
-                updatedRecord.setSellCost(storeInventoryDAO.getSellCost());
-                updatedRecord.setWholesaleCost(storeInventoryDAO.getWholesaleCost());
-
-                // Save the updated record to the database
+                updateRowInTransactionSummery(updatedRowData, updatedRecord);
+                updatedRecord.setItemName(updatedRowData.getProduct());
+                updatedRecord.setQuantity(updatedRowData.getQuantity());
+                updatedRecord.setPurchaseCost(updatedRowData.getPurchaseCost());
+                updatedRecord.setSellCost(updatedRowData.getSellCost());
+                updatedRecord.setWholesaleCost(updatedRowData.getWholesaleCost());
+                if (updatedRowData.getUnitType() == null || updatedRowData.getUnitType().isEmpty()) {
+                    updatedRecord.setUnitType("UNIT"); // Replace "someValue" with the actual unit type
+                } else {
+                    updatedRecord.setUnitType(updatedRowData.getUnitType());
+                }
                 groceryStoreRepository.save(updatedRecord);
-
-            } else {
-                return;
             }
         } catch (Exception e) {
             return;
+        }
+    }
+
+    public void updateRowInTransactionSummery(UpdatedRowData updatedRowData, StoreInventoryDAO updatedRecord) {
+        InventryTransactionDAO inventryTransactionDAO = new InventryTransactionDAO();
+        String partyName = inventoryTransactionRepo.findByItemName(updatedRowData.getProduct()).stream().sorted(Comparator.comparing(InventryTransactionDAO::getPurchaseDate).reversed()).collect(Collectors.toList()).get(0).getPartyName();
+        try {
+            inventryTransactionDAO.setItemName(updatedRowData.getProduct());
+            if (updatedRecord.getQuantity().compareTo(updatedRowData.getQuantity())!=0) {
+                BigDecimal updatedQuantity = updatedRowData.getQuantity().subtract(updatedRecord.getQuantity());
+                inventryTransactionDAO.setQuantity(updatedQuantity);
+            }
+                inventryTransactionDAO.setPurchaseCost(updatedRowData.getPurchaseCost());
+                inventryTransactionDAO.setSellCost(updatedRowData.getSellCost());
+                inventryTransactionDAO.setWholesaleCost(updatedRowData.getWholesaleCost());
+            
+            inventryTransactionDAO.setPurchaseDate(LocalDate.now());
+            inventryTransactionDAO.setStockValue(
+                    inventryTransactionDAO.getQuantity().multiply(inventryTransactionDAO.getPurchaseCost()));
+            if (updatedRowData.getUnitType() == null || updatedRowData.getUnitType().isEmpty()) {
+                inventryTransactionDAO.setUnitType("UNIT"); // Replace "someValue" with the actual unit type
+            } else {
+                inventryTransactionDAO.setUnitType(updatedRowData.getUnitType());
+            }
+            inventryTransactionDAO.setPartyName(partyName);
+            inventoryTransactionRepo.save(inventryTransactionDAO);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -310,7 +327,6 @@ public class GroceryService {
         });
         dashboardDetails.setSaleData(saleDatas);
         dashboardDetails.setInventoryData(inventoryDatas);
-        System.out.println(dashboardDetails);
         return dashboardDetails;
     }
 }

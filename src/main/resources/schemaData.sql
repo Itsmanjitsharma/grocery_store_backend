@@ -33,7 +33,8 @@ CREATE TABLE store_inventory (
     quantity DECIMAL NOT NULL,
     purchase_cost DECIMAL NOT NULL,
     sell_cost DECIMAL NOT NULL,
-    wholesale_cost DECIMAL NOT NULL
+    wholesale_cost DECIMAL NOT NULL,
+    unit_type VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE stock_transactions (
@@ -45,7 +46,8 @@ CREATE TABLE stock_transactions (
     wholesale_cost DECIMAL(10, 2) NOT NULL,
     stock_value DECIMAL(10, 2) NOT NULL,
     party_name VARCHAR(255) NOT NULL,
-    purchase_date DATE NOT NULL
+    purchase_date DATE NOT NULL,
+    unit_type VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE products (

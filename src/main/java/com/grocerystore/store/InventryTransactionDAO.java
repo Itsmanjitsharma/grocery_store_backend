@@ -48,7 +48,10 @@ public class InventryTransactionDAO {
     @Column(nullable = false,name = "purchase_date")
     private LocalDate purchaseDate;
 
-    public InventryTransactionDAO(String itemName, BigDecimal quantity, BigDecimal purchaseCost, BigDecimal sellCost, BigDecimal wholesaleCost ,BigDecimal stockValue, String partyName, LocalDate purchaseDate) {
+    @Column(nullable = false,name = "unit_type")
+    private String unitType;
+
+    public InventryTransactionDAO(String itemName, BigDecimal quantity, BigDecimal purchaseCost, BigDecimal sellCost, BigDecimal wholesaleCost ,BigDecimal stockValue, String partyName, LocalDate purchaseDate,String unitType) {
         this.itemName = itemName;
         this.quantity = quantity;
         this.purchaseCost = purchaseCost;
@@ -57,5 +60,6 @@ public class InventryTransactionDAO {
         this.stockValue = stockValue;
         this.partyName = partyName;
         this.purchaseDate = purchaseDate;
+        this.unitType = unitType;
     }    
 }

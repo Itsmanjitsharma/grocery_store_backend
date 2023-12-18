@@ -19,6 +19,7 @@ public class UpdatedRowData {
     private BigDecimal purchaseCost;
     private BigDecimal sellCost;
     private BigDecimal wholesaleCost;
+    private String unitType;
     @JsonCreator
     public UpdatedRowData(
         @JsonProperty("id") Long id,
@@ -26,13 +27,15 @@ public class UpdatedRowData {
         @JsonProperty("quantity") BigDecimal quantity,
         @JsonProperty("purchaseCost") BigDecimal purchaseCost,
         @JsonProperty("sellCost") BigDecimal sellCost,
-        @JsonProperty("wholesaleCost") BigDecimal wholesaleCost) {
+        @JsonProperty("wholesaleCost") BigDecimal wholesaleCost,
+        @JsonProperty("unitType") String unitType) {
         this.id = id;
         this.product = product;
         this.quantity = quantity;
         this.purchaseCost = purchaseCost;
         this.sellCost = sellCost;
         this.wholesaleCost = wholesaleCost;
+        this.unitType = unitType;
     }
 
 }
