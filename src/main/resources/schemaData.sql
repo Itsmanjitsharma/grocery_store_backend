@@ -34,7 +34,8 @@ CREATE TABLE store_inventory (
     purchase_cost DECIMAL NOT NULL,
     sell_cost DECIMAL NOT NULL,
     wholesale_cost DECIMAL NOT NULL,
-    unit_type VARCHAR(255) NOT NULL
+    unit_type VARCHAR(255) NOT NULL,
+    minimum_quantity int NOT NULL,
 );
 
 CREATE TABLE stock_transactions (

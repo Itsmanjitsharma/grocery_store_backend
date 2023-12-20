@@ -8,6 +8,7 @@ import javax.persistence.PersistenceContext;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.util.StreamUtils;
@@ -40,6 +41,7 @@ public class UserSchemaRepository {
         return null;
     }
   }
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   private void executeSQLStatements(String filePath) {
     String sqlContent = readSQLFile(filePath);
     System.out.println(sqlContent);
@@ -51,5 +53,5 @@ public class UserSchemaRepository {
             entityManager.createNativeQuery(sqlStatement).executeUpdate();
         }
     }
-}
+  }
 }

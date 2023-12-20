@@ -46,7 +46,7 @@ public class GroceryService {
             if (!uiMap.containsKey(storeInventry.getItem())) {
                 uiMap.put(storeInventry.getItem(), new StoreInventoryDAO(storeInventry.getItem(),
                         storeInventry.getQuantity(), storeInventry.getPurchaseCost(), storeInventry.getSellCost(),
-                        storeInventry.getWholesaleCost(), storeInventry.getUnitType()));
+                        storeInventry.getWholesaleCost(), storeInventry.getUnitType(),BigDecimal.valueOf(0)));
             }
         }
         Map<String, StoreInventoryDAO> dbMap = groceryStoreRepository.findByItemNameIn(new ArrayList<>(uiMap.keySet()))
@@ -194,8 +194,13 @@ public class GroceryService {
                 updatedRecord.setPurchaseCost(updatedRowData.getPurchaseCost());
                 updatedRecord.setSellCost(updatedRowData.getSellCost());
                 updatedRecord.setWholesaleCost(updatedRowData.getWholesaleCost());
+                updatedRecord.setMinimumQuantity(updatedRowData.getMinimumQuantity());
+                System.out.println(updatedRowData.getUnitType() == null || updatedRowData.getUnitType().isEmpty());
+                System.out.println(updatedRowData.getUnitType() == null);
+                System.out.println(updatedRowData.getUnitType().isEmpty());
+                System.out.println(updatedRowData.getUnitType().length()==0);
                 if (updatedRowData.getUnitType() == null || updatedRowData.getUnitType().isEmpty()) {
-                    updatedRecord.setUnitType("UNIT"); // Replace "someValue" with the actual unit type
+                    updatedRecord.setUnitType("UNIT"); 
                 } else {
                     updatedRecord.setUnitType(updatedRowData.getUnitType());
                 }
@@ -214,14 +219,17 @@ public class GroceryService {
             if (updatedRecord.getQuantity().compareTo(updatedRowData.getQuantity())!=0) {
                 BigDecimal updatedQuantity = updatedRowData.getQuantity().subtract(updatedRecord.getQuantity());
                 inventryTransactionDAO.setQuantity(updatedQuantity);
+            }else{
+                inventryTransactionDAO.setQuantity(BigDecimal.valueOf(0));
             }
                 inventryTransactionDAO.setPurchaseCost(updatedRowData.getPurchaseCost());
                 inventryTransactionDAO.setSellCost(updatedRowData.getSellCost());
                 inventryTransactionDAO.setWholesaleCost(updatedRowData.getWholesaleCost());
             
             inventryTransactionDAO.setPurchaseDate(LocalDate.now());
-            inventryTransactionDAO.setStockValue(
-                    inventryTransactionDAO.getQuantity().multiply(inventryTransactionDAO.getPurchaseCost()));
+            System.out.println(updatedRowData.getQuantity());
+            System.out.println(updatedRowData.getPurchaseCost());
+            inventryTransactionDAO.setStockValue(inventryTransactionDAO.getQuantity().multiply(inventryTransactionDAO.getPurchaseCost()));
             if (updatedRowData.getUnitType() == null || updatedRowData.getUnitType().isEmpty()) {
                 inventryTransactionDAO.setUnitType("UNIT"); // Replace "someValue" with the actual unit type
             } else {
@@ -304,7 +312,8 @@ public class GroceryService {
         Map<String, Long> itemCountsByCategory = storeInventoryDAOs.stream()
                 .collect(Collectors.groupingBy(item -> {
                     BigDecimal quantity = item.getQuantity();
-                    if (quantity.compareTo(BigDecimal.valueOf(5)) > 0) {
+                    BigDecimal minimumQuantity = item.getMinimumQuantity();
+                    if (quantity.compareTo(minimumQuantity) > 0) {
                         return "In Stock";
                     } else if (quantity.compareTo(BigDecimal.ZERO) > 0) {
                         return "Going to Out of Stock";

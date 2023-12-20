@@ -18,8 +18,8 @@ public class InventryDTO {
     BigDecimal sellCost;
     String partyName;
     BigDecimal stockValue;
-    BigDecimal wholesaleCost;
-    
+    BigDecimal wholesaleCost;    
+    BigDecimal minimumQuantity =BigDecimal.valueOf(0);
     String unitType;
     
 }

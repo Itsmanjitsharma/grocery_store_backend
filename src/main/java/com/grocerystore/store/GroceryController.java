@@ -105,7 +105,7 @@ public class GroceryController {
             inventoryDTOs.add(new StoreInventoryDTO(i++, storeInventoryDAO.getItemName(),
                     storeInventoryDAO.getQuantity(), storeInventoryDAO.getPurchaseCost(),
                     storeInventoryDAO.getSellCost(), storeInventoryDAO.getWholesaleCost(),
-                    storeInventoryDAO.getUnitType()));
+                    storeInventoryDAO.getUnitType(),storeInventoryDAO.getMinimumQuantity()));
         }
         return inventoryDTOs;
     }
